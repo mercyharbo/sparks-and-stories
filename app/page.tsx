@@ -1,12 +1,17 @@
-import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 export default function Home() {
   return (
-    <div className='grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]'>
-      <h1>Testing shadcn button</h1>
-      <Button variant='default' size='xl'>
-        Shadcn button
-      </Button>
+    <div className=''>
+      <div className='relative'>
+        <Image
+          src='https://ik.imagekit.io/m17ea4jzw/Big%20tower%20in%20Verona%20Italy%20o....jpg?updatedAt=1744589531930'
+          width={1000}
+          height={500}
+          alt='cover image'
+          className='object-cover object-center w-full h-[300px] sm:h-[500px]'
+        />
+      </div>
     </div>
   )
 }
