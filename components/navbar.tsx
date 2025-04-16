@@ -30,7 +30,7 @@ export default function NavbarComp() {
   const [isMobile, setIsMobile] = useState(false)
 
   return (
-    <div className='bg-white fixed top-0 left-0 z-20 h-[5rem] w-full flex flex-row justify-between items-center px-5 py-3 lg:px-16 lg:py-5'>
+    <div className='bg-white fixed top-0 left-0 z-40 h-[5rem] w-full flex flex-row justify-between items-center px-5 py-3 lg:px-16 lg:py-5'>
       <Link href='/'>
         <h1 className='text-3xl font-semibold capitalize '>Sparks & stories</h1>
       </Link>
