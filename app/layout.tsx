@@ -1,3 +1,4 @@
+import FooterComp from '@/components/footer'
 import NavbarComp from '@/components/navbar'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -62,6 +63,7 @@ export default function RootLayout({
       >
         <NavbarComp />
         <div className='mt-[5.5rem]'>{children}</div>
+        <FooterComp />
       </body>
     </html>
   )
