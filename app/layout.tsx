@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: 'Sparks and Stories',
     images: [
       {
-        url: 'https://ik.imagekit.io/m17ea4jzw/Big%20tower%20in%20Verona%20Italy%20o....jpg?updatedAt=1744589531930', // Add your image path here
+        url: 'https://ik.imagekit.io/m17ea4jzw/homepage.png?updatedAt=1744929724823', // Add your image path here
         width: 1200,
         height: 630,
         alt: 'Sparks and Stories - Creative Writing Community',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     title: 'Sparks and Stories',
     description: 'A community for creative writers and storytellers',
     images: [
-      'https://ik.imagekit.io/m17ea4jzw/Big%20tower%20in%20Verona%20Italy%20o....jpg?updatedAt=1744589531930',
+      'https://ik.imagekit.io/m17ea4jzw/homepage.png?updatedAt=1744929724823',
     ], // Same image as OG
     creator: '@codewithmercy', // Optional: add your Twitter username
   },
