@@ -150,7 +150,7 @@ export default function Home() {
                     </div>
                     <p className='text-gray-500'>{post.excerpt}</p>
                     <Link
-                      href={`/blog/${post.title
+                      href={`/post/${post.title
                         .replace(/\s+/g, '-')
                         .toLowerCase()}`}
                       className='underline text-black font-semibold hover:text-blue-400'

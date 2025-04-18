@@ -1,0 +1,130 @@
+{
+    "time": 1713360000000,
+    "blocks": [
+        {
+            "type": "header",
+            "data": {
+                "text": "5 Powerful Habits of Highly Productive Developers",
+                "level": 2
+            }
+        },
+        {
+            "type": "image",
+            "data": {
+                "file": {
+                    "url": "https://img.freepik.com/free-photo/african-kid-enjoying-life_23-2151448174.jpg?t=st=1744931584~exp=1744935184~hmac=5277223d866674a8a94558fb91748e2936796dbcf5909ecf3672f69ea8f1e8f1&w=1380"
+                },
+                "caption": "Being productive doesn’t mean working more—it means working smarter.",
+                "withBorder": false,
+                "stretched": false,
+                "withBackground": false
+            }
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "Productive developers don’t just work hard—they work smart. These habits will help you boost your efficiency and avoid burnout."
+            }
+        },
+        {
+            "type": "header",
+            "data": {
+                "text": "1. Plan Before You Code",
+                "level": 3
+            }
+        },
+        {
+            "type": "list",
+            "data": {
+                "style": "unordered",
+                "items": [
+                    "Understand the problem clearly",
+                    "Break it down into manageable tasks",
+                    "Choose the right tools for the job"
+                ]
+            }
+        },
+        {
+            "type": "quote",
+            "data": {
+                "text": "Give me six hours to chop down a tree and I will spend the first four sharpening the axe.",
+                "caption": "Abraham Lincoln"
+            }
+        },
+        {
+            "type": "code",
+            "data": {
+                "code": "git add .\ngit commit -m \"Update\"\ngit push origin main"
+            }
+        },
+        {
+            "type": "header",
+            "data": {
+                "text": "2. Automate Repetitive Tasks",
+                "level": 1
+            }
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "From git hooks to CI/CD pipelines, automation saves time and reduces mistakes."
+            }
+        },
+        {
+            "type": "header",
+            "data": {
+                "text": "3. Take Meaningful Breaks",
+                "level": 3
+            }
+        },
+        {
+            "type": "image",
+            "data": {
+                "file": {
+                    "url": "https://img.freepik.com/free-photo/portrait-young-girl-with-traditional-asian-clothing_23-2151022399.jpg?t=st=1744933356~exp=1744936956~hmac=928f1d3b34d458e97af89c401c992347e96f30f150a2815c8565923f89ceb854&w=1380"
+                },
+                "caption": "Your brain needs downtime to perform at its best.",
+                "withBorder": false,
+                "stretched": false,
+                "withBackground": false
+            }
+        },
+        {
+            "type": "header",
+            "data": {
+                "text": "4. Embrace Deep Work",
+                "level": 3
+            }
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "<strong>Multitasking is a myth.</strong> Focused, uninterrupted time is where real progress happens."
+            }
+        },
+        {
+            "type": "header",
+            "data": {
+                "text": "5. Never Stop Learning",
+                "level": 3
+            }
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "The tech world evolves fast. Productive developers are always reading, experimenting, and sharing knowledge."
+            }
+        },
+        {
+            "type": "delimiter",
+            "data": {}
+        },
+        {
+            "type": "paragraph",
+            "data": {
+                "text": "<em>Start with one habit and build from there. Consistency beats intensity.</em>"
+            }
+        }
+    ],
+    "version": "2.28.2"
+}
