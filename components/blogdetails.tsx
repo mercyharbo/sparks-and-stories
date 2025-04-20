@@ -130,8 +130,6 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
     console.log(values)
   }
 
-  console.log('post', post)
-
   return (
     <main className='flex flex-col justify-center items-center gap-5 w-full'>
       <article className='relative h-[60vh] lg:h-[80vh] w-[90vw] lg:w-[90vw] mx-auto rounded-lg overflow-hidden mt-[3rem]'>
@@ -143,7 +141,7 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
           priority
         />
 
-        <div className='absolute inset-0 bg-black/50'>
+        <div className='absolute inset-0 bg-black/70'>
           <div className='flex flex-col justify-center items-center gap-3 lg:w-1/2 w-full px-5 m-auto text-center h-full text-white'>
             <div className='flex flex-wrap gap-2'>
               {post.categories.map((category) => (
@@ -156,13 +154,13 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
               ))}
             </div>
             <div className='flex flex-col justify-start items-start gap-3 w-full'>
-              <h1 className='lg:text-3xl text-2xl font-semibold uppercase'>
+              <h1 className='lg:text-4xl text-2xl font-semibold uppercase'>
                 {post.title}
               </h1>
             </div>
-            <div className='flex justify-start items-center gap-3 text-sm lg:text-xs'>
+            <div className='flex flex-wrap justify-center items-center gap-3 text-sm text-center lg:text-xs'>
               <span className='font-semibold text-gray-300'>
-                by {post.author}
+                By {post.author}
               </span>
               <span className='text-gray-300'>&mdash;</span>
               <span className='text-gray-300'>
@@ -278,7 +276,7 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
           </div>
         </div>
 
-        <Card className='w-full h-auto lg:w-[25%] '>
+        <Card className='w-full h-auto border-gray-200 lg:w-[30%] '>
           <CardHeader className='gap-4'>
             <Avatar className='w-20 h-20'>
               <AvatarImage
@@ -371,7 +369,7 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
         </div>
       </article>
 
-      <article className='grid grid-cols-1 content-center place-items-center px-5 lg:px-20 lg:grid-cols-4 gap-10 my-5 lg:my-20 lg:gap-5 w-full'>
+      <article className='grid grid-cols-1 px-5 lg:px-20 lg:grid-cols-4 gap-10 my-5 lg:my-20 lg:gap-5 w-full'>
         {posts.slice(0, 4).map((post, index) => (
           <article
             key={index}
@@ -382,7 +380,7 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
               alt={post.title}
               width={500}
               height={300}
-              className='object-cover rounded-lg'
+              className='w-full h-56 object-cover rounded-lg'
             />
             <div className='flex flex-col justify-start items-start gap-2 w-full'>
               <h3 className='font-semibold text-lg'>{post.title}</h3>

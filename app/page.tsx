@@ -69,11 +69,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <BlogList />
+      <BlogList post={result} />
 
       <article className='relative h-[80vh] w-[90vw] lg:w-[80vw] mx-auto rounded-lg overflow-hidden my-5 lg:my-10'>
         <Image
-          src={result[0]?.mainImage?.asset?.url}
+          src={result[1]?.mainImage?.asset?.url}
           fill
           alt='cover image'
           className='object-cover object-center w-full'
@@ -81,13 +81,13 @@ export default async function Home() {
         <div className='absolute inset-0 bg-black/50'>
           <div className='flex flex-col justify-center items-center gap-3 lg:w-1/2 w-full px-5 m-auto text-center h-full text-white'>
             <h1 className='lg:text-3xl text-2xl uppercase font-semibold'>
-              {result[0]?.title}
+              {result[1]?.title}
             </h1>
             <p className='text-lg lg:text-base'>
-              {result[0]?.body?.[0]?.children?.[0]?.text}
+              {result[1]?.body?.[0]?.children?.[0]?.text}
             </p>
             <Link
-              href={`/post/${result[0]?.slug?.current}`}
+              href={`/post/${result[1]?.slug?.current}`}
               className='inline-block'
             >
               <Button

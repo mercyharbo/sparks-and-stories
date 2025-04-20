@@ -1,69 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Button } from './ui/button'
-
 import { type SanityDocument } from 'next-sanity'
 
-import { client } from '@/sanity/client'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const POSTS_QUERY = `*[
-  _type == "post"
-  && defined(slug.current)
-]|order(publishedAt desc)[0...12]{
-  _id,
-  title,
-  slug,
-  publishedAt,
-  body,
-  categories[]->{
-    _id,
-    title,
-    slug
-  },
-  mainImage {
-    asset->{
-      _id,
-      url
-    }
-  },
-  "author": author->name,
-  "authorImage": author->image.asset->url
-}`
+interface BlogListProps {
+  post: SanityDocument[]
+}
 
-const options = { next: { revalidate: 30 } }
-
-const BlogList = () => {
-  const [loading, setLoading] = useState(true)
-  const [posts, setPosts] = useState<SanityDocument[]>([])
-
-  const fetchPosts = async () => {
-    try {
-      const fetchedPosts = await client.fetch<SanityDocument[]>(
-        POSTS_QUERY,
-        {},
-        options
-      )
-      setPosts(fetchedPosts)
-      setLoading(false)
-    } catch (error) {
-      console.error('Error fetching posts:', error)
-      setPosts([])
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchPosts()
-  }, [])
-
-  console.log('post', posts)
-
-  if (loading) {
+const BlogList = ({ post }: BlogListProps) => {
+  if (!post?.length) {
     return (
-      <>
+      <div className='grid grid-cols-1 lg:grid-cols-4 gap-10 px-5 lg:px-16'>
         {[...Array(6)].map((_, index) => (
           <div
             key={index}
@@ -77,14 +26,14 @@ const BlogList = () => {
             </div>
           </div>
         ))}
-      </>
+      </div>
     )
   }
 
   return (
     <section className='flex flex-col justify-center items-center gap-5 w-full py-10 lg:py-20'>
       <div className='grid grid-cols-1 lg:grid-cols-4 gap-10 px-5 lg:px-16'>
-        {posts.map((post) => (
+        {post.map((post: SanityDocument) => (
           <article
             key={post._id}
             className='bg-white relative flex flex-col justify-start items-start gap-5'
@@ -152,20 +101,11 @@ const BlogList = () => {
         ))}
       </div>
 
-      {posts.length > 8 && (
-        <Button
-          type='button'
-          variant={'outline'}
-          size={'xl'}
-          onClick={() => {
-            setLoading(true)
-            setTimeout(() => setLoading(false), 1000)
-          }}
-          className=''
-        >
+      {/* {post.length > 8 && (
+        <Button type='button' variant={'outline'} size={'xl'}>
           Load More
         </Button>
-      )}
+      )} */}
     </section>
   )
 }
