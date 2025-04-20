@@ -1,45 +1,81 @@
 import BlogDetailsComp from '@/components/blogdetails'
+import { client } from '@/sanity/client'
 import { Metadata } from 'next'
 
-// type Props = {
-//   params: Promise<{ slug: string }>
-//   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-// }
+import { groq } from 'next-sanity'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const dummyPost = {
-    title: 'Sample Blog Post',
-    excerpt: 'This is a sample blog post description.',
-    coverImage: '/images/sample-cover.jpg',
-    url: `https://img.freepik.com/free-photo/african-kid-enjoying-life_23-2151448174.jpg?t=st=1744931584~exp=1744935184~hmac=5277223d866674a8a94558fb91748e2936796dbcf5909ecf3672f69ea8f1e8f1&w=1380`,
+type Props = {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+const query = groq`*[_type == "post" && slug.current == $slug][0]{
+  _id,
+  title,
+  slug,
+  publishedAt,
+  body,
+  categories[]->{
+    _id,
+    title,
+    slug
+  },
+  mainImage {
+    asset->{
+      _id,
+      url
+    }
+  },
+  "author": author->name,
+  "authorImage": author->image.asset->url,
+  "authorBio": author->bio
+}`
+
+export async function generateMetadata(
+  { params }: Props
+  // parent: ResolvingMetadata
+): Promise<Metadata> {
+  const slug = (await params).slug
+  const post = await client.fetch(query, { slug })
+
+  if (!post) {
+    return {
+      title: 'Not Found',
+      description: 'The page you are looking for does not exist.',
+    }
   }
 
   return {
-    title: dummyPost.title,
-    description: dummyPost.excerpt,
+    title: post.title,
+    description: post.body?.[0]?.children?.[0]?.text || '',
     openGraph: {
-      title: dummyPost.title,
-      description: dummyPost.excerpt,
+      title: post.title,
+      description: post.body?.[0]?.children?.[0]?.text || '',
       type: 'article',
-      url: dummyPost.url,
+      url: `${process.env.NEXT_PUBLIC_BASE_URL}/post/${post.slug.current}`,
       images: [
         {
-          url: dummyPost.coverImage,
+          url: post.mainImage?.asset?.url || '',
           width: 1200,
           height: 630,
-          alt: dummyPost.title,
+          alt: post.title,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: dummyPost.title,
-      description: dummyPost.excerpt,
-      images: [dummyPost.coverImage],
+      title: post.title,
+      description: post.body?.[0]?.children?.[0]?.text || '',
+      images: [post.mainImage?.asset?.url || ''],
     },
   }
 }
 
-export default function BlogDetails() {
-  return <BlogDetailsComp />
+export default async function BlogDetails({ params }: Props) {
+  const slug = (await params).slug
+  const post = await client.fetch(query, { slug })
+
+  if (!post) return <div>Post not found</div>
+
+  return <BlogDetailsComp post={post} />
 }

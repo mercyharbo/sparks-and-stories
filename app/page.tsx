@@ -1,51 +1,79 @@
-import blogPosts from '@/components/blogcontent'
 import BlogList from '@/components/blogpost'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Share2 } from 'lucide-react'
+import { client } from '@/sanity/client'
+import { SanityDocument } from 'next-sanity'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function Home() {
+const POSTS_QUERY = `*[
+  _type == "post"
+  && defined(slug.current)
+]|order(publishedAt desc)[0...12]{
+  _id,
+  title,
+  slug,
+  publishedAt,
+  body,
+  categories[]->{
+    _id,
+    title,
+    slug
+  },
+  mainImage {
+    asset->{
+      _id,
+      url
+    }
+  },
+  "author": author->name,
+  "authorImage": author->image.asset->url
+}`
+
+const options = { next: { revalidate: 30 } }
+
+export default async function Home() {
+  const result = await client.fetch<SanityDocument[]>(POSTS_QUERY, {}, options)
+
   return (
     <main className='flex flex-col gap-5 w-full'>
       <section className='relative h-[80vh] w-full'>
         <Image
-          src='https://ik.imagekit.io/m17ea4jzw/Big%20tower%20in%20Verona%20Italy%20o....jpg?updatedAt=1744589531930'
+          src={result[0]?.mainImage?.asset?.url}
           fill
-          alt='cover image'
+          alt={result[0]?.title}
           className='object-cover object-center'
           sizes='100vw'
         />
 
         <div className='absolute inset-0 bg-black/50'>
           <div className='flex flex-col justify-center items-center gap-3 lg:w-1/2 w-full px-5 m-auto text-center h-full text-white'>
-            <h1 className='text-3xl uppercase font-semibold'>
-              Wanderlust Chronicles: Embracing the Beauty of Travel
+            <h1 className='lg:text-3xl text-2xl uppercase font-semibold'>
+              {result[0]?.title}
             </h1>
             <p className='text-lg lg:text-base'>
-              Travel isn&apos;t just about visiting new places; it&apos;s about
-              experiencing different cultures, meeting people, and broadening
-              one&apos;s perspective. Whether it&apos;s the serene beaches of
-              Bali, the bustling streets of Tokyo, or the historic landmarks of
-              Rome, each journey leaves an imprint on the soul.
+              {result[0]?.body?.[0]?.children?.[0]?.text}
             </p>
-            <Button
-              type='button'
-              variant={'default'}
-              className='capitalize h-12 px-5 rounded-md transition-all duration-300'
+            <Link
+              href={`/post/${result[0]?.slug?.current}`}
+              className='inline-block'
             >
-              read more
-            </Button>
+              <Button
+                type='button'
+                variant={'default'}
+                className='capitalize h-12 px-5 rounded-md transition-all duration-300'
+              >
+                read more
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
       <BlogList />
 
-      <div className='relative h-[80vh] w-[90vw] lg:w-[80vw] mx-auto rounded-lg overflow-hidden'>
+      <article className='relative h-[80vh] w-[90vw] lg:w-[80vw] mx-auto rounded-lg overflow-hidden my-5 lg:my-10'>
         <Image
-          src='https://img.freepik.com/free-photo/maldives-island_74190-477.jpg?t=st=1744765041~exp=1744768641~hmac=6cae4d08fa85d82e2afe34b71d24f4046869e098b45fc724dee12cf021db0d80&w=1380'
+          src={result[0]?.mainImage?.asset?.url}
           fill
           alt='cover image'
           className='object-cover object-center w-full'
@@ -53,27 +81,28 @@ export default function Home() {
         <div className='absolute inset-0 bg-black/50'>
           <div className='flex flex-col justify-center items-center gap-3 lg:w-1/2 w-full px-5 m-auto text-center h-full text-white'>
             <h1 className='lg:text-3xl text-2xl uppercase font-semibold'>
-              Wanderlust Chronicles: Embracing the Beauty of Travel
+              {result[0]?.title}
             </h1>
             <p className='text-lg lg:text-base'>
-              Travel isn&apos;t just about visiting new places; it&apos;s about
-              experiencing different cultures, meeting people, and broadening
-              one&apos;s perspective. Whether it&apos;s the serene beaches of
-              Bali, the bustling streets of Tokyo, or the historic landmarks of
-              Rome, each journey leaves an imprint on the soul.
+              {result[0]?.body?.[0]?.children?.[0]?.text}
             </p>
-            <Button
-              type='button'
-              variant={'default'}
-              className='capitalize h-12 px-5 rounded-md transition-all duration-300'
+            <Link
+              href={`/post/${result[0]?.slug?.current}`}
+              className='inline-block'
             >
-              read more
-            </Button>
+              <Button
+                type='button'
+                variant={'default'}
+                className='capitalize h-12 px-5 rounded-md transition-all duration-300'
+              >
+                read more
+              </Button>
+            </Link>
           </div>
         </div>
-      </div>
+      </article>
 
-      <div className='flex flex-col justify-start items-start gap-5 w-full px-5 lg:px-20 py-10'>
+      {/* <article className='flex flex-col justify-start items-start gap-5 w-full px-5 lg:px-20 py-10'>
         <Tabs defaultValue='all' className='w-full'>
           <TabsList className='flex justify-start gap-5 w-full overflow-x-auto snap-x snap-mandatory bg-transparent scrollbar-hide'>
             <TabsTrigger value='all' className='snap-start flex-shrink-0'>
@@ -207,7 +236,7 @@ export default function Home() {
           </TabsContent>
           <TabsContent value='password'>Change your password here.</TabsContent>
         </Tabs>
-      </div>
+      </article> */}
     </main>
   )
 }

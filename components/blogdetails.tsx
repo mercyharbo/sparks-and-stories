@@ -1,14 +1,5 @@
 'use client'
 
-import blogPosts from '@/components/blogcontent'
-import post1 from '@/components/post.json'
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { BarChart2, Clock, Instagram, Twitter } from 'lucide-react'
 import {
   FacebookIcon,
@@ -19,23 +10,54 @@ import {
   WhatsappShareButton,
 } from 'next-share'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Separator } from './ui/separator'
 
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { urlFor } from '@/lib/utils'
+import { client } from '@/sanity/client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { PortableTextBlock } from '@portabletext/types'
+import { PortableText, SanityDocument } from 'next-sanity'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Button } from './ui/button'
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from './ui/card'
+import { Form, FormControl, FormField, FormItem, FormMessage } from './ui/form'
+import { Input } from './ui/input'
+
+const POSTS_QUERY = `*[
+  _type == "post"
+  && defined(slug.current)
+]|order(publishedAt desc)[0...12]{
+  _id,
+  title,
+  slug,
+  publishedAt,
+  body,
+  categories[]->{
+    _id,
+    title,
+    slug
+  },
+  mainImage {
+    asset->{
+      _id,
+      url
+    }
+  },
+  "author": author->name,
+  "authorImage": author->image.asset->url
+}`
+
+const options = { next: { revalidate: 30 } }
 
 const formSchema = z.object({
   email: z.string().min(2, {
@@ -43,14 +65,56 @@ const formSchema = z.object({
   }),
 })
 
-export default function BlogDetailsComp() {
-  const headerBlock = post1.blocks.find(
-    (block) => block.type === 'header' && block.data.level === 2
-  )
-  const imageBlock = post1.blocks.find((block) => block.type === 'image')
-  const contentBlocks = post1.blocks.slice(2) // Skip the header and first image
+type Post = {
+  _id: string
+  title: string
+  slug: { current: string }
+  publishedAt: string
+  body: PortableTextBlock[] // You might want to type this more specifically
+  categories: Array<{
+    _id: string
+    title: string
+    slug: { current: string }
+  }>
+  mainImage: {
+    asset: {
+      _id: string
+      url: string
+    }
+  }
+  author: string
+  authorBio: PortableTextBlock[]
+  authorImage: string
+}
 
+interface BlogDetailsCompProps {
+  post: Post
+}
+
+export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
   const url = typeof window !== 'undefined' ? window.location.href : ''
+  // const [loading, setLoading] = useState(true)
+  const [posts, setPosts] = useState<SanityDocument[]>([])
+
+  const fetchPosts = async () => {
+    try {
+      const fetchedPosts = await client.fetch<SanityDocument[]>(
+        POSTS_QUERY,
+        {},
+        options
+      )
+      setPosts(fetchedPosts)
+      // setLoading(false)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+      setPosts([])
+      // setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts()
+  }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,42 +130,43 @@ export default function BlogDetailsComp() {
     console.log(values)
   }
 
+  console.log('post', post)
+
   return (
     <main className='flex flex-col justify-center items-center gap-5 w-full'>
       <article className='relative h-[60vh] lg:h-[80vh] w-[90vw] lg:w-[90vw] mx-auto rounded-lg overflow-hidden mt-[3rem]'>
         <Image
-          src={imageBlock?.data?.file?.url || ''}
+          src={post.mainImage.asset.url}
           fill
-          alt='cover image'
+          alt={post.title}
           className='object-cover object-center w-full'
+          priority
         />
 
         <div className='absolute inset-0 bg-black/50'>
           <div className='flex flex-col justify-center items-center gap-3 lg:w-1/2 w-full px-5 m-auto text-center h-full text-white'>
             <div className='flex flex-wrap gap-2'>
-              <span className='bg-[#0000008d] text-white text-xs capitalize font-semibold p-2 rounded-md'>
-                travel
-              </span>
-              <span className='bg-[#0000008d] text-white text-xs capitalize font-semibold p-2 rounded-md'>
-                adventure
-              </span>
-              <span className='bg-[#0000008d] text-white text-xs capitalize font-semibold p-2 rounded-md'>
-                photography
-              </span>
+              {post.categories.map((category) => (
+                <span
+                  key={category._id}
+                  className='bg-[#0000008d] text-white text-xs capitalize font-semibold p-2 rounded-md'
+                >
+                  {category.title}
+                </span>
+              ))}
             </div>
             <div className='flex flex-col justify-start items-start gap-3 w-full'>
               <h1 className='lg:text-3xl text-2xl font-semibold uppercase'>
-                {headerBlock?.data.text}
+                {post.title}
               </h1>
-              <span className=''>{imageBlock?.data.caption}</span>
             </div>
             <div className='flex justify-start items-center gap-3 text-sm lg:text-xs'>
               <span className='font-semibold text-gray-300'>
-                by Mercy Chemutai
+                by {post.author}
               </span>
               <span className='text-gray-300'>&mdash;</span>
               <span className='text-gray-300'>
-                {new Date().toLocaleDateString('en-US', {
+                {new Date(post.publishedAt).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
@@ -123,84 +188,73 @@ export default function BlogDetailsComp() {
 
       <article className='flex flex-col justify-start items-start lg:flex-row gap-10 w-full px-5 lg:px-20 lg:py-10'>
         <div className='prose prose-lg max-w-full px-4 py-8 w-full lg:w-[70%]'>
-          {contentBlocks.map((block, index) => {
-            switch (block.type) {
-              case 'header':
-                return (
-                  <h2
-                    key={index}
-                    className={`text-2xl font-bold mt-6 mb-4 ${
-                      block.data.level === 3 ? 'text-xl' : 'text-2xl'
-                    }`}
-                  >
-                    {block.data.text}
-                  </h2>
-                )
-              case 'paragraph':
-                return (
-                  <div
-                    key={index}
-                    className='my-4'
-                    dangerouslySetInnerHTML={{ __html: block.data.text || '' }}
-                  />
-                )
-              case 'image':
-                return (
-                  <figure key={index} className='my-6'>
-                    <div className='relative h-[400px] w-full'>
-                      <Image
-                        src={block.data.file?.url || ''}
-                        alt={block.data.caption || ''}
-                        fill
-                        className='object-cover rounded-lg'
-                      />
-                    </div>
-                    {block.data.caption && (
-                      <figcaption className='text-center mt-2 text-gray-600 italic'>
-                        {block.data.caption}
-                      </figcaption>
-                    )}
-                  </figure>
-                )
-              case 'list':
-                return (
-                  <ul key={index} className='list-disc pl-6 my-4'>
-                    {(block.data.items ?? []).map((item, i) => (
-                      <li key={i} className='mb-2'>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                )
-              case 'quote':
-                return (
-                  <blockquote
-                    key={index}
-                    className='border-l-4 border-gray-300 pl-4 my-6 italic'
-                  >
-                    <p>{block.data.text}</p>
-                    {block.data.caption && (
-                      <footer className='text-gray-600 mt-2'>
-                        — {block.data.caption}
-                      </footer>
-                    )}
+          <PortableText
+            value={post.body}
+            components={{
+              block: {
+                h1: ({ children }) => (
+                  <h1 className='text-4xl font-bold my-4'>{children}</h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className='text-3xl font-bold my-3'>{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className='text-2xl font-bold my-2'>{children}</h3>
+                ),
+                h4: ({ children }) => (
+                  <h4 className='text-xl font-bold my-2'>{children}</h4>
+                ),
+                normal: ({ children }) => <p className='my-4'>{children}</p>,
+                blockquote: ({ children }) => (
+                  <blockquote className='border-l-4 border-gray-200 pl-4 my-4 italic'>
+                    {children}
                   </blockquote>
-                )
-              case 'code':
-                return (
-                  <pre
-                    key={index}
-                    className='bg-gray-800 text-white p-4 rounded-lg my-4 overflow-x-auto'
-                  >
-                    <code>{block.data.code}</code>
+                ),
+              },
+              types: {
+                image: ({ value }) => {
+                  return (
+                    <figure className='my-6'>
+                      <div className='relative h-[450px] w-full'>
+                        {value?.asset?._ref && (
+                          <Image
+                            src={urlFor(value).url()}
+                            alt={value.alt || 'Blog post image'}
+                            fill
+                            className='object-cover rounded-lg '
+                          />
+                        )}
+                      </div>
+                      {value?.caption && (
+                        <figcaption className='text-center mt-2 text-gray-600 italic'>
+                          {value.caption}
+                        </figcaption>
+                      )}
+                    </figure>
+                  )
+                },
+                code: ({ value }) => (
+                  <pre className='bg-gray-800 text-white p-4 rounded-lg my-4 overflow-x-auto'>
+                    <code>{value.code}</code>
                   </pre>
-                )
-              case 'delimiter':
-                return <hr key={index} className='my-8 border-gray-200' />
-              default:
-                return null
-            }
-          })}
+                ),
+              },
+              marks: {
+                strong: ({ children }) => (
+                  <strong className='font-bold'>{children}</strong>
+                ),
+                em: ({ children }) => <em className='italic'>{children}</em>,
+                link: ({ children, value }) => (
+                  <Link
+                    href={value.href}
+                    className='text-blue-500 hover:underline'
+                  >
+                    {children}
+                  </Link>
+                ),
+              },
+            }}
+          />
 
           <div className='flex flex-col gap-5 w-full'>
             <div className='flex gap-3 text-xl'>
@@ -228,20 +282,22 @@ export default function BlogDetailsComp() {
           <CardHeader className='gap-4'>
             <Avatar className='w-20 h-20'>
               <AvatarImage
-                src='https://ik.imagekit.io/m17ea4jzw/image.png?updatedAt=1744584867568'
+                src={post.authorImage}
+                // alt='Avatar Image'
                 className='object-cover object-center'
               />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>{post.author}</AvatarFallback>
             </Avatar>
-            <CardTitle>Mercy Chemutai</CardTitle>
+            <CardTitle>{post.author}</CardTitle>
             <CardDescription>
-              {' '}
-              A passionate travel enthusiast and photographer with over 5 years
-              of experience capturing moments across continents. Through my lens
-              and words, I share authentic stories of diverse cultures, hidden
-              gems, and breathtaking landscapes. When not exploring new
-              destinations, I&apos;m either planning my next adventure or
-              mentoring aspiring travel photographers.
+              <PortableText
+                value={post.authorBio}
+                components={{
+                  block: {
+                    normal: ({ children }) => <p>{children}</p>,
+                  },
+                }}
+              />
             </CardDescription>
           </CardHeader>
 
@@ -266,48 +322,9 @@ export default function BlogDetailsComp() {
         </Card>
       </article>
 
-      <article className='grid grid-cols-1 content-center place-items-center px-5 lg:px-20 lg:grid-cols-4 gap-10 lg:gap-5 w-full'>
-        {blogPosts.slice(0, 4).map((post, index) => (
-          <article
-            key={index}
-            className='bg-white flex flex-col justify-start items-start gap-5'
-          >
-            <Image
-              src={post.image}
-              alt={post.title}
-              width={500}
-              height={300}
-              className='object-cover rounded-lg'
-            />
-            <div className='flex flex-col justify-start items-start gap-2 w-full'>
-              <h3 className='font-semibold text-lg'>{post.title}</h3>
-              <div className='flex justify-start items-center gap-3'>
-                <span className='font-semibold text-black'>{post.author}</span>
-                <span>&mdash;</span>
-                <span>
-                  {new Date(post.date).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-              <p className='text-gray-500'>{post.excerpt}</p>
-
-              <Link
-                href={`/blog/${post.title.replace(/\s+/g, '-').toLowerCase()}`}
-                className='underline text-black font-semibold hover:text-blue-400'
-              >
-                View Post
-              </Link>
-            </div>
-          </article>
-        ))}
-      </article>
-
-      <article className='relative h-[60vh] lg:h-[80vh] w-[90vw] lg:w-[90vw] mx-auto rounded-lg overflow-hidden my-5 py-5 lg:my-20'>
+      <article className='relative h-[60vh] lg:h-[80vh] w-[90vw] lg:w-[90vw] mx-auto rounded-lg overflow-hidden '>
         <Image
-          src={imageBlock?.data?.file?.url || ''}
+          src={post.mainImage.asset.url}
           fill
           alt='cover image'
           className='object-cover object-center w-full'
@@ -333,7 +350,6 @@ export default function BlogDetailsComp() {
                   name='email'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input
                           placeholder='enter your email'
@@ -341,9 +357,7 @@ export default function BlogDetailsComp() {
                           className='h-14'
                         />
                       </FormControl>
-                      {/* <FormDescription>
-                        This is your public display name.
-                      </FormDescription> */}
+
                       <FormMessage />
                     </FormItem>
                   )}
@@ -355,6 +369,58 @@ export default function BlogDetailsComp() {
             </Form>
           </div>
         </div>
+      </article>
+
+      <article className='grid grid-cols-1 content-center place-items-center px-5 lg:px-20 lg:grid-cols-4 gap-10 my-5 lg:my-20 lg:gap-5 w-full'>
+        {posts.slice(0, 4).map((post, index) => (
+          <article
+            key={index}
+            className='bg-white flex flex-col justify-start items-start gap-5'
+          >
+            <Image
+              src={post.mainImage.asset.url}
+              alt={post.title}
+              width={500}
+              height={300}
+              className='object-cover rounded-lg'
+            />
+            <div className='flex flex-col justify-start items-start gap-2 w-full'>
+              <h3 className='font-semibold text-lg'>{post.title}</h3>
+              <div className='flex justify-start items-center gap-3'>
+                <div className='flex justify-start items-center gap-2'>
+                  <Image
+                    src={post.authorImage}
+                    alt={post.author}
+                    width={20}
+                    height={20}
+                    className='w-8 h-8 object-cover object-top rounded-full'
+                  />
+                  <span className='text-black capitalize font-semibold'>
+                    {post.author}
+                  </span>
+                </div>
+                <span>&mdash;</span>
+                <span>
+                  {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+              <p className='text-gray-500 line-clamp-3'>
+                {post.body[0].children[0].text}
+              </p>
+
+              <Link
+                href={`/blog/${post.slug.current}`}
+                className='underline text-black font-semibold hover:text-blue-400'
+              >
+                View Post
+              </Link>
+            </div>
+          </article>
+        ))}
       </article>
     </main>
   )

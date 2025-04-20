@@ -1,20 +1,65 @@
 'use client'
 
-import { Share2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Button } from './ui/button'
+
+import { type SanityDocument } from 'next-sanity'
+
+import { client } from '@/sanity/client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import blogPosts from './blogcontent'
-import { Button } from './ui/button'
+
+const POSTS_QUERY = `*[
+  _type == "post"
+  && defined(slug.current)
+]|order(publishedAt desc)[0...12]{
+  _id,
+  title,
+  slug,
+  publishedAt,
+  body,
+  categories[]->{
+    _id,
+    title,
+    slug
+  },
+  mainImage {
+    asset->{
+      _id,
+      url
+    }
+  },
+  "author": author->name,
+  "authorImage": author->image.asset->url
+}`
+
+const options = { next: { revalidate: 30 } }
 
 const BlogList = () => {
   const [loading, setLoading] = useState(true)
+  const [posts, setPosts] = useState<SanityDocument[]>([])
+
+  const fetchPosts = async () => {
+    try {
+      const fetchedPosts = await client.fetch<SanityDocument[]>(
+        POSTS_QUERY,
+        {},
+        options
+      )
+      setPosts(fetchedPosts)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+      setPosts([])
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    // Simulate loading time
-    const timer = setTimeout(() => setLoading(false), 1000)
-    return () => clearTimeout(timer)
+    fetchPosts()
   }, [])
+
+  console.log('post', posts)
 
   if (loading) {
     return (
@@ -39,25 +84,25 @@ const BlogList = () => {
   return (
     <section className='flex flex-col justify-center items-center gap-5 w-full py-10 lg:py-20'>
       <div className='grid grid-cols-1 lg:grid-cols-4 gap-10 px-5 lg:px-16'>
-        {blogPosts.map((post, index) => (
+        {posts.map((post) => (
           <article
-            key={index}
+            key={post._id}
             className='bg-white relative flex flex-col justify-start items-start gap-5'
           >
             <Image
-              src={post.image}
+              src={post.mainImage.asset.url}
               alt={post.title}
               width={500}
               height={300}
               className='w-full h-56 object-cover rounded-lg'
             />
             <div className='absolute top-3 left-4 z-30 flex justify-start items-center flex-wrap gap-2'>
-              {post.tags.map((tag, index) => (
+              {post.categories.map((tag: { _id: string; title: string }) => (
                 <span
-                  key={index}
+                  key={tag._id}
                   className='bg-[#0000008d] text-white text-xs capitalize font-semibold p-2 rounded-md'
                 >
-                  {tag}
+                  {tag.title}
                 </span>
               ))}
             </div>
@@ -65,12 +110,21 @@ const BlogList = () => {
               <h3 className='text-lg font-semibold'>{post.title}</h3>
               <div className='flex justify-between items-center w-auto gap-5 text-xs text-gray-500'>
                 <div className='flex justify-start items-center gap-3 text-sm lg:text-xs'>
-                  <span className='font-semibold text-black'>
-                    {post.author}
-                  </span>
+                  <div className='flex justify-start items-center gap-2'>
+                    <Image
+                      src={post.authorImage}
+                      alt={post.author}
+                      width={20}
+                      height={20}
+                      className='w-8 h-8 object-cover object-top rounded-full'
+                    />
+                    <span className='text-black capitalize font-semibold'>
+                      {post.author}
+                    </span>
+                  </div>
                   <span>&mdash;</span>
                   <span>
-                    {new Date(post.date).toLocaleDateString('en-US', {
+                    {new Date(post.publishedAt).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric',
@@ -79,14 +133,16 @@ const BlogList = () => {
                 </div>
 
                 <span>&bull;</span>
-                <span className='text-xs text-gray-500 flex justify-start items-center gap-2'>
+                {/* <span className='text-xs text-gray-500 flex justify-start items-center gap-2'>
                   {' '}
                   <Share2 size={15} /> {post.shares} shares
-                </span>
+                </span> */}
               </div>
-              <p className='text-gray-500'>{post.excerpt}</p>
+              <p className='text-gray-500 line-clamp-3'>
+                {post.body[0].children[0].text}
+              </p>
               <Link
-                href={`/post/${post.title.replace(/\s+/g, '-').toLowerCase()}`}
+                href={`/post/${post.slug.current}`}
                 className='underline text-black font-semibold hover:text-blue-400'
               >
                 View Post
@@ -96,18 +152,20 @@ const BlogList = () => {
         ))}
       </div>
 
-      <Button
-        type='button'
-        variant={'outline'}
-        size={'xl'}
-        onClick={() => {
-          setLoading(true)
-          setTimeout(() => setLoading(false), 1000)
-        }}
-        className=''
-      >
-        Load More
-      </Button>
+      {posts.length > 8 && (
+        <Button
+          type='button'
+          variant={'outline'}
+          size={'xl'}
+          onClick={() => {
+            setLoading(true)
+            setTimeout(() => setLoading(false), 1000)
+          }}
+          className=''
+        >
+          Load More
+        </Button>
+      )}
     </section>
   )
 }
