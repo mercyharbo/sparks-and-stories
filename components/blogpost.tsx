@@ -31,7 +31,7 @@ const BlogList = ({ post }: BlogListProps) => {
   }
 
   return (
-    <section className='flex flex-col justify-center items-center gap-5 w-full py-10 lg:py-20'>
+    <section className='flex flex-col justify-center items-center gap-5 w-full py-10 lg:py-10'>
       <div className='grid grid-cols-1 lg:grid-cols-4 gap-10 px-5 lg:px-16'>
         {post.map((post: SanityDocument) => (
           <article
