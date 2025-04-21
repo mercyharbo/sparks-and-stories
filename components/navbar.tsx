@@ -10,9 +10,15 @@ import {
 
 import { cn } from '@/lib/utils'
 import { LogOutIcon, Menu } from 'lucide-react'
+import { Orbitron } from 'next/font/google'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+
+const orbitron = Orbitron({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
 
 const navItems = [
   { name: 'Home', link: '/' },
@@ -29,7 +35,11 @@ export default function NavbarComp() {
   return (
     <div className='bg-white fixed top-0 left-0 z-40 h-[5rem] w-full flex flex-row justify-between items-center px-5 py-3 lg:px-16 lg:py-5'>
       <Link href='/'>
-        <h1 className='text-3xl font-semibold capitalize '>Sparks & stories</h1>
+        <h1
+          className={`text-3xl font-semibold capitalize ${orbitron.className}`}
+        >
+          Sparks & stories
+        </h1>
       </Link>
 
       <NavigationMenu className='lg:block hidden'>
@@ -82,7 +92,9 @@ export default function NavbarComp() {
         <div className='fixed top-0 left-0 h-screen w-[80vw] bg-black text-white p-5 z-30'>
           <div className='flex flex-col justify-between items-start h-[80vh]'>
             <Link href='/'>
-              <h1 className='text-xl capitalize font-bold text-white'>
+              <h1
+                className={`text-xl capitalize font-bold text-white ${orbitron.className}`}
+              >
                 Sparks & stories
               </h1>
             </Link>
