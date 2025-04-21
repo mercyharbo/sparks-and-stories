@@ -40,30 +40,25 @@ const CATEGORIES_QUERY = `*[_type == "category"]{
   title,
   
 }`
-const POSTS_COUNT_QUERY = `count(*[_type == "post"])`
-const AUTHORS_QUERY = `*[_type == "author"]{
-  _id,
-  name,
-  slug,
-  image {
-    asset->{
-      url
-    }
-  },
-  bio
-}`
+// const POSTS_COUNT_QUERY = `count(*[_type == "post"])`
+// const AUTHORS_QUERY = `*[_type == "author"]{
+//   _id,
+//   name,
+//   slug,
+//   image {
+//     asset->{
+//       url
+//     }
+//   },
+//   bio
+// }`
 const options = { next: { revalidate: 30 } }
 
 export default async function Home() {
   const result = await client.fetch<SanityDocument[]>(POSTS_QUERY, {}, options)
   const categories = await client.fetch(CATEGORIES_QUERY, {}, options)
-  const authors = await client.fetch(AUTHORS_QUERY, {}, options)
-  const postsCount = await client.fetch(POSTS_COUNT_QUERY, {}, options)
-
-  console.log('Posts:', result)
-  console.log('Categories:', categories)
-  console.log('Authors:', authors)
-  console.log('Total Posts:', postsCount)
+  // const authors = await client.fetch(AUTHORS_QUERY, {}, options)
+  // const postsCount = await client.fetch(POSTS_COUNT_QUERY, {}, options)
 
   return (
     <main className='flex flex-col gap-5 w-full'>
