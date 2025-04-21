@@ -82,7 +82,7 @@ export default function NavbarComp() {
         <div className='fixed top-0 left-0 h-screen w-[80vw] bg-black text-white p-5 z-30'>
           <div className='flex flex-col justify-between items-start h-[80vh]'>
             <Link href='/'>
-              <h1 className='text-2xl capitalize font-semibold text-white'>
+              <h1 className='text-xl capitalize font-bold text-white'>
                 Sparks & stories
               </h1>
             </Link>
