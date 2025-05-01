@@ -9,7 +9,8 @@ import {
 } from '@/components/ui/navigation-menu'
 
 import { cn } from '@/lib/utils'
-import { LogOutIcon, Menu } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Menu, X } from 'lucide-react'
 import { Orbitron } from 'next/font/google'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -32,14 +33,57 @@ export default function NavbarComp() {
   const pathname = usePathname()
   const [isMobile, setIsMobile] = useState(false)
 
+  const mobileMenuVariants = {
+    hidden: { x: '-100%', opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+      },
+    },
+    exit: {
+      x: '-100%',
+      opacity: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+      },
+    },
+  }
+
+  const navItemVariants = {
+    hidden: { y: -20, opacity: 0 },
+    visible: (i: number) => ({
+      y: 0,
+      opacity: 1,
+      transition: {
+        delay: i * 0.1,
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+      },
+    }),
+  }
+
   return (
-    <div className='bg-white fixed top-0 left-0 z-40 h-[5rem] w-full flex flex-row justify-between items-center px-5 py-3 lg:px-16 lg:py-5'>
+    <motion.div
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className='bg-white fixed top-0 left-0 z-40 h-[5rem] w-full flex flex-row justify-between items-center px-5 py-3 lg:px-[8rem] lg:py-5 shadow-sm'
+    >
       <Link href='/'>
-        <h1
-          className={`text-3xl font-semibold capitalize ${orbitron.className}`}
+        <motion.h1
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`text-3xl font-semibold capitalize ${orbitron.className} cursor-pointer`}
         >
           Sparks & stories
-        </h1>
+        </motion.h1>
       </Link>
 
       <NavigationMenu className='lg:block hidden'>
@@ -53,7 +97,8 @@ export default function NavbarComp() {
                   <NavigationMenuLink
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      isActive ? 'bg-gray-600 text-white' : ''
+                      isActive ? 'bg-gray-600 text-white' : 'hover:bg-gray-100',
+                      'transition-colors duration-300'
                     )}
                   >
                     {item.name}
@@ -64,75 +109,73 @@ export default function NavbarComp() {
           })}
         </NavigationMenuList>
       </NavigationMenu>
-      <div className='relative flex flex-row justify-start items-center gap-3'>
-        {/* <Avatar
-          onMouseDown={() => setIsOpen(!isOpen)}
-          className={cn(
-            'w-14 h-14 cursor-pointer rounded-full',
-            isOpen ? 'ring-1 ring-gray-400 p-1 rounded-full' : ''
-          )}
-        >
-          <AvatarImage
-            src='https://ik.imagekit.io/m17ea4jzw/image.png?updatedAt=1744584867568'
-            className='object-cover object-center'
-          />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar> */}
 
-        <button
-          type='button'
-          className='lg:hidden text-4xl text-gray-500 hover:text-gray-700'
-          onClick={() => setIsMobile(!isMobile)}
-        >
-          <Menu />
-        </button>
-      </div>
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        type='button'
+        className='lg:hidden text-4xl text-gray-500 hover:text-gray-700'
+        onClick={() => setIsMobile(!isMobile)}
+      >
+        {isMobile ? <X /> : <Menu />}
+      </motion.button>
 
-      {isMobile && (
-        <div className='fixed top-0 left-0 h-screen w-[80vw] bg-black text-white p-5 z-30'>
-          <div className='flex flex-col justify-between items-start h-[80vh]'>
-            <Link href='/'>
-              <h1
-                className={`text-xl capitalize font-bold text-white ${orbitron.className}`}
+      <AnimatePresence>
+        {isMobile && (
+          <motion.div
+            variants={mobileMenuVariants}
+            initial='hidden'
+            animate='visible'
+            exit='exit'
+            className='fixed top-0 left-0 h-screen w-[80vw] bg-black text-white p-5 z-30'
+          >
+            <div className='flex flex-col gap-[5rem] w-full'>
+              <Link href='/'>
+                <motion.h1
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`text-lg capitalize font-bold text-white ${orbitron.className} cursor-pointer`}
+                >
+                  Sparks & stories
+                </motion.h1>
+              </Link>
+
+              <motion.div
+                className='flex flex-col justify-start items-start gap-3 w-full'
+                initial='hidden'
+                animate='visible'
               >
-                Sparks & stories
-              </h1>
-            </Link>
+                {navItems.map((item, i) => {
+                  const isActive = pathname === item.link
 
-            <div className='flex flex-col justify-start items-start gap-3 w-full'>
-              {navItems.map((item) => {
-                const isActive = pathname === item.link
-
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.link}
-                    legacyBehavior
-                    passHref
-                  >
-                    <span
-                      className={cn(
-                        `text-white h-12 w-full rounded-md flex justify-start items-center px-2 text-xl`,
-                        isActive ? 'bg-gray-600' : 'hover:bg-gray-400'
-                      )}
+                  return (
+                    <motion.div
+                      key={item.name}
+                      custom={i}
+                      variants={navItemVariants}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      {item.name}
-                    </span>
-                  </Link>
-                )
-              })}
+                      <Link href={item.link} legacyBehavior passHref>
+                        <span
+                          className={cn(
+                            `text-white h-12 w-full rounded-md flex justify-start items-center px-2 text-xl transition-colors duration-300`,
+                            isActive
+                              ? 'bg-gray-600'
+                              : 'hover:bg-gray-800'
+                          )}
+                        >
+                          {item.name}
+                        </span>
+                      </Link>
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
             </div>
-
-            <button
-              type='button'
-              className='flex flex-row justify-start items-center gap-3 w-full rounded-md h-12 hover:bg-gray-400'
-            >
-              {' '}
-              <LogOutIcon /> Logout
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }

@@ -62,7 +62,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NavbarComp />
-        <div className='mt-[5.5rem]'>{children}</div>
+        <main className='mt-[5rem]'>{children}</main>
         <FooterComp />
       </body>
     </html>

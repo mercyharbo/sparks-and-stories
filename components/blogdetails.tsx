@@ -1,6 +1,13 @@
 'use client'
 
-import { BarChart2, Clock, Instagram, Twitter } from 'lucide-react'
+import {
+  BarChart2,
+  Calendar,
+  Clock,
+  Instagram,
+  Linkedin,
+  Twitter,
+} from 'lucide-react'
 import {
   FacebookIcon,
   FacebookShareButton,
@@ -25,6 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -85,6 +93,15 @@ type Post = {
   author: string
   authorBio: PortableTextBlock[]
   authorImage: string
+  authorJoined: string
+  authorPostsCount: number
+  authorFollowers: number
+  authorFollowing: number
+  authorSocial?: {
+    instagram: string
+    twitter: string
+    linkedin: string
+  }
 }
 
 interface BlogDetailsCompProps {
@@ -185,7 +202,7 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
       </article>
 
       <article className='flex flex-col justify-start items-start lg:flex-row gap-10 w-full px-5 lg:px-20 lg:py-10'>
-        <div className='prose prose-lg max-w-full px-4 py-8 w-full lg:w-[70%]'>
+        <div className='prose prose-lg max-w-full px-4 w-full lg:w-[70%]'>
           <PortableText
             value={post.body}
             components={{
@@ -219,7 +236,7 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
                             src={urlFor(value).url()}
                             alt={value.alt || 'Blog post image'}
                             fill
-                            className='object-cover rounded-lg '
+                            className='object-contain rounded-lg '
                           />
                         )}
                       </div>
@@ -276,51 +293,109 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
           </div>
         </div>
 
-        <Card className='w-full h-auto border-gray-200 lg:w-[30%] '>
-          <CardHeader className='gap-4'>
-            <Avatar className='w-20 h-20'>
-              <AvatarImage
-                src={post.authorImage}
-                // alt='Avatar Image'
-                className='object-cover object-center'
-              />
-              <AvatarFallback>{post.author}</AvatarFallback>
-            </Avatar>
-            <CardTitle>{post.author}</CardTitle>
-            <CardDescription>
-              <PortableText
-                value={post.authorBio}
-                components={{
-                  block: {
-                    normal: ({ children }) => <p>{children}</p>,
-                  },
-                }}
-              />
-            </CardDescription>
+        <Card className='w-full h-auto border-gray-200 lg:w-[30%] group hover:shadow-lg transition-all duration-300'>
+          <CardHeader className='gap-3 relative'>
+            <div className='absolute -top-4 left-1/2 transform -translate-x-1/2'>
+              <Avatar className='w-24 h-24 ring-4 ring-white shadow-lg group-hover:scale-105 transition-transform duration-300'>
+                <AvatarImage
+                  src={post.authorImage}
+                  alt={`${post.author}'s profile picture`}
+                  className='object-cover object-center'
+                />
+                <AvatarFallback className='bg-gradient-to-r from-blue-500 to-purple-600 text-white text-2xl font-bold'>
+                  {post.author
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className='mt-[6rem] text-center'>
+              <CardTitle className='text-2xl font-bold mb-2'>
+                {post.author}
+              </CardTitle>
+              <div className='flex justify-center items-center gap-2 text-gray-500 mb-4'>
+                <Calendar size={16} />
+                <span className='text-sm'>
+                  Joined{' '}
+                  {new Date(post.authorJoined).toLocaleDateString('en-US', {
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+              <CardDescription className='text-gray-600'>
+                <PortableText
+                  value={post.authorBio}
+                  components={{
+                    block: {
+                      normal: ({ children }) => (
+                        <p className='text-center leading-relaxed'>
+                          {children}
+                        </p>
+                      ),
+                    },
+                  }}
+                />
+              </CardDescription>
+            </div>
           </CardHeader>
 
-          <CardFooter className='flex justify-start items-center gap-4'>
+          <CardContent className=''>
+            <div className='flex flex-col gap-4'>
+              <div className='flex justify-between items-center p-4 bg-gray-50 rounded-lg'>
+                <div className='text-center'>
+                  <p className='text-2xl font-bold text-blue-600'>
+                    {post.authorPostsCount}
+                  </p>
+                  <p className='text-sm text-gray-500'>Posts</p>
+                </div>
+                <div className='text-center'>
+                  <p className='text-2xl font-bold text-purple-600'>
+                    {post.authorFollowers}
+                  </p>
+                  <p className='text-sm text-gray-500'>Followers</p>
+                </div>
+                <div className='text-center'>
+                  <p className='text-2xl font-bold text-green-600'>
+                    {post.authorFollowing}
+                  </p>
+                  <p className='text-sm text-gray-500'>Following</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+
+          <CardFooter className='flex justify-center items-center gap-4 pt-4 border-t border-gray-100'>
             <Link
-              href='https://instagram.com'
+              href={post.authorSocial?.instagram || '#'}
               target='_blank'
               rel='noopener noreferrer'
-              //   className='text-gray-600 ring-2 ring-blue-500 rounded-lg shadow-xl p-1.5 hover:text-pink-600'
+              className='p-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:scale-110 transition-transform duration-300'
             >
-              <Instagram size={25} />
+              <Instagram size={20} />
             </Link>
             <Link
-              href='https://twitter.com'
+              href={post.authorSocial?.twitter || '#'}
               target='_blank'
               rel='noopener noreferrer'
-              //   className='text-gray-600 ring-2 ring-blue-500 rounded-lg shadow-xl p-1.5 hover:text-blue-400'
+              className='p-2 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white hover:scale-110 transition-transform duration-300'
             >
-              <Twitter size={25} />
+              <Twitter size={20} />
+            </Link>
+            <Link
+              href={post.authorSocial?.linkedin || '#'}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='p-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white hover:scale-110 transition-transform duration-300'
+            >
+              <Linkedin size={20} />
             </Link>
           </CardFooter>
         </Card>
       </article>
 
-      <article className='relative h-[60vh] lg:h-[80vh] w-[90vw] lg:w-[90vw] mx-auto rounded-lg overflow-hidden '>
+      <article className='relative h-[60vh] lg:h-[80vh] w-[90vw] lg:w-[80vw] mx-auto rounded-lg overflow-hidden '>
         <Image
           src={post.mainImage.asset.url}
           fill
@@ -335,7 +410,8 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
                 Sign up for our newsletter{' '}
               </h3>
               <p className='text-sm'>
-                Stay updated with the latest travel tips and stories
+                Subscribe to our newsletter for the latest updates and exclusive
+                content.
               </p>
             </div>
             <Form {...form}>
@@ -369,8 +445,8 @@ export default function BlogDetailsComp({ post }: BlogDetailsCompProps) {
         </div>
       </article>
 
-      <article className='grid grid-cols-1 px-5 lg:px-20 lg:grid-cols-4 gap-10 my-5 lg:my-20 lg:gap-5 w-full'>
-        {posts.slice(0, 4).map((post, index) => (
+      <article className='grid grid-cols-1 px-5 lg:px-[8rem] lg:grid-cols-3 gap-10 my-5 lg:my-20 lg:gap-5 w-full'>
+        {posts.slice(0, 3).map((post, index) => (
           <article
             key={index}
             className='bg-white flex flex-col justify-start items-start gap-5'
