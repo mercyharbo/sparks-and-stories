@@ -4,8 +4,9 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  --primary: 0 0% 100%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  /* Updated primary color (Deep Blue) */
+  --primary: 221 83% 53%;
+  --primary-foreground: 210 40% 98%;
 
   --secondary: 210 40% 96.1%;
   --secondary-foreground: 222.2 47.4% 11.2%;
@@ -25,6 +26,7 @@
 
   --radius: 0.5rem;
 }
+
 
 @theme {
   --font-sans: var(--font-geist-sans);
@@ -61,4 +63,14 @@
   --breakpoint-xl: 80rem; /* 1280px */
   --breakpoint-2xl: 100rem; /* 1600px */
   --breakpoint-3xl: 120rem; /* 1920px */
+}
+
+.prose h1 {
+  @apply text-3xl font-bold mb-4 mt-8;
+}
+.prose h2 {
+  @apply text-2xl font-bold mb-3 mt-6;
+}
+.prose h3 {
+  @apply text-xl font-bold mb-3 mt-6;
 }
