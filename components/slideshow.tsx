@@ -139,10 +139,7 @@ export default function Slideshow({ posts }: SlideshowProps) {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className='mt-4'
               >
-                <Link
-                  href={`/post/${currentPost.slug}`}
-                  className='inline-block'
-                >
+                <Link href={`/post/${currentPost.id}`} className='inline-block'>
                   <Button
                     type='button'
                     variant='default'

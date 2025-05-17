@@ -22,10 +22,10 @@ const orbitron = Orbitron({
 
 const navItems = [
   { name: 'Home', link: '/' },
-  { name: 'Sports', link: '/sports' },
+  // { name: 'Sports', link: '/sports' },
   { name: 'Technology', link: '/technology' },
   { name: 'Entertainment', link: '/entertainment' },
-  { name: 'Politics', link: '/politics' },
+  { name: 'Anime', link: '/anime' },
 ]
 
 export default function NavbarComp() {

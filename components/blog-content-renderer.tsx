@@ -1,9 +1,10 @@
 'use client'
 
+import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import Image from '@tiptap/extension-image'
+import { useEffect } from 'react'
 
 interface BlogContentProps {
   content: string
@@ -53,23 +54,41 @@ const extensions = [
   }),
   Image.configure({
     HTMLAttributes: {
-      class: 'my-4 rounded-lg shadow-md max-w-full h-auto',
+      class: 'my-4 rounded-lg shadow-md w-full h-[400px] object-cover',
     },
+    allowBase64: true, // This is crucial for base64 images
   }),
 ]
 
 export default function BlogContentRenderer({ content }: BlogContentProps) {
   const editor = useEditor({
     extensions,
-    content,
+    content: '', // Start with empty content and set it after initialization
     editable: false,
     editorProps: {
       attributes: {
-        class:
-          'prose prose-lg max-w-none focus:outline-none [&>div]:outline-none',
+        class: 'prose prose-lg max-w-none focus:outline-none',
       },
     },
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
   })
+
+  useEffect(() => {
+    // Ensure the editor has initialized
+    if (editor) {
+      // Set content after initialization
+      editor.commands.setContent(content)
+    }
+  }, [editor, content])
+
+  // Add some debugging if needed
+  // useEffect(() => {
+  //   if (editor && process.env.NODE_ENV === 'development') {
+  //     console.log('Editor content:', editor.getHTML())
+  //   }
+  // }, [editor])
 
   return (
     <article className='article-content space-y-6 [&_.ProseMirror]:!outline-none'>

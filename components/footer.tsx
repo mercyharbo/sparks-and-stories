@@ -14,8 +14,8 @@ const Footer = () => {
       transition={{ duration: 0.5 }}
       className='bg-gray-900 text-white py-12'
     >
-      <div className='container mx-auto px-4'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
+      <div className='container max-w-7xl px-4 lg:px-8 mx-auto'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
           <div className='space-y-4'>
             <h3 className='text-xl font-bold'>About Us</h3>
             <p className='text-gray-400'>
@@ -68,37 +68,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href='/about'
-                  className='text-gray-400 hover:text-white transition-colors'
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/contact'
-                  className='text-gray-400 hover:text-white transition-colors'
-                >
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/privacy-policy'
-                  className='text-gray-400 hover:text-white transition-colors'
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className='space-y-4'>
-            <h3 className='text-xl font-bold'>Categories</h3>
-            <ul className='space-y-2'>
-              <li>
-                <Link
-                  href='/category/technology'
+                  href='/technology'
                   className='text-gray-400 hover:text-white transition-colors'
                 >
                   Technology
@@ -106,26 +76,18 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href='/category/lifestyle'
+                  href='/entertainment'
                   className='text-gray-400 hover:text-white transition-colors'
                 >
-                  Lifestyle
+                  Entertainment
                 </Link>
               </li>
               <li>
                 <Link
-                  href='/category/business'
+                  href='/anime'
                   className='text-gray-400 hover:text-white transition-colors'
                 >
-                  Business
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/category/health'
-                  className='text-gray-400 hover:text-white transition-colors'
-                >
-                  Health
+                  Anime
                 </Link>
               </li>
             </ul>
